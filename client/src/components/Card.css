@@ -1,0 +1,75 @@
+/* =========================================
+   REUSABLE CARD COMPONENT
+   ========================================= */
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+/* Variants */
+.card-default {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+}
+
+.card-gradient {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.card-solid {
+    background: #111118;
+}
+
+/* Hover Effect */
+.card-hover:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+/* Clickable */
+.card-clickable {
+    cursor: pointer;
+}
+
+/* Padding Sizes */
+.card-padding-small {
+    padding: 1rem;
+}
+
+.card-padding-medium {
+    padding: 1.5rem;
+}
+
+.card-padding-large {
+    padding: 2rem;
+}
+
+.card-padding-none {
+    padding: 0;
+}
+
+/* Sub-components */
+.card-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-body {
+    flex: 1;
+}
+
+.card-footer {
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
