@@ -37,11 +37,11 @@ const Register = () => {
 
         try {
             const { data } = await registerUser({
-                studentId: formData.studentId,
+                userId: formData.studentId,  // Backend expects 'userId'
                 name: formData.name,
                 email: formData.email,
                 department: formData.department,
-                year: formData.year,
+                year: parseInt(formData.year),  // Convert to number
                 password: formData.password,
             });
             login(data.token, data.user);
