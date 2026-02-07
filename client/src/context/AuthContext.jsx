@@ -27,7 +27,8 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
         try {
             const { data } = await getCurrentUser();
-            setUser(data);
+            // API returns { success, message, user } - extract user object
+            setUser(data.user || data);
         } catch (error) {
             localStorage.removeItem('token');
         } finally {

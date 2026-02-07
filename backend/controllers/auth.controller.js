@@ -1,285 +1,242 @@
 /**
- * Auth Controller
- * @description Handles authentication logic (register, login, profile)
- * @author Senior MERN Developer
+ * Authentication Controller
+ * @description Handles user registration, login, and profile
  */
 
 const jwt = require('jsonwebtoken');
-const Student = require('../models/Student.model');
+const User = require('../models/User.model');
+const { errorResponse, successResponse } = require('../utils/response');
+const { VALID_DEPARTMENTS, JWT_CONFIG } = require('../utils/constants');
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Generate JWT Token
- * @param {string} studentId - MongoDB ObjectId of student
- * @param {string} role - User role
- * @returns {string} - JWT token
  */
-const generateToken = (studentId, role) => {
-  return jwt.sign(
-    { id: studentId, role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE || '7d' }
-  );
-};
-
-/**
- * Send token response with cookie
- * @param {Object} student - Student document
- * @param {number} statusCode - HTTP status code
- * @param {Object} res - Express response object
- */
-const sendTokenResponse = (student, statusCode, res) => {
-  const token = generateToken(student._id, student.role);
-
-  const options = {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  };
-
-  res.status(statusCode).cookie('token', token, options).json({
-    success: true,
-    token,
-    student: student.getPublicProfile(),
+const generateToken = (payload) => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_CONFIG.EXPIRE,
+    issuer: JWT_CONFIG.ISSUER,
+    audience: JWT_CONFIG.AUDIENCE,
   });
 };
 
 /**
- * @route   POST /api/auth/register
- * @desc    Register a new student
- * @access  Public
+ * POST /api/auth/register
  */
 exports.register = async (req, res) => {
   try {
-    const { studentId, name, email, department, year, password } = req.body;
+    const { userId, name, email, department, year, password, role = 'student' } = req.body;
 
     // Validate required fields
-    if (!studentId || !name || !email || !department || !year || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide all required fields',
-        required: ['studentId', 'name', 'email', 'department', 'year', 'password'],
-      });
+    if (!userId || !name || !email || !password) {
+      return errorResponse(res, 400, 'Please provide userId, name, email, and password', 'MISSING_FIELDS');
     }
 
-    // Check if student already exists
-    const existingStudent = await Student.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { studentId: studentId.toUpperCase() },
-      ],
-    });
-
-    if (existingStudent) {
-      const field = existingStudent.email === email.toLowerCase() ? 'email' : 'studentId';
-      return res.status(409).json({
-        success: false,
-        message: `Student with this ${field} already exists`,
-        field,
-      });
+    // Validate email format
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return errorResponse(res, 400, 'Please provide a valid email address', 'INVALID_EMAIL');
     }
 
-    // Create student
-    const student = await Student.create({
-      studentId: studentId.toUpperCase(),
-      name,
+    // Check password strength
+    if (password.length < 6) {
+      return errorResponse(res, 400, 'Password must be at least 6 characters', 'WEAK_PASSWORD');
+    }
+
+    // Validate role
+    if (!['student', 'admin'].includes(role)) {
+      return errorResponse(res, 400, 'Invalid role', 'INVALID_ROLE');
+    }
+
+    // Admin registration requires admin auth
+    if (role === 'admin' && (!req.user || req.user.role !== 'admin')) {
+      return errorResponse(res, 403, 'Only admins can register new admins', 'ADMIN_ONLY');
+    }
+
+    // Student-specific validation
+    if (role === 'student') {
+      if (!department || !VALID_DEPARTMENTS.includes(department.toUpperCase())) {
+        return errorResponse(res, 400, `Invalid department. Valid: ${VALID_DEPARTMENTS.join(', ')}`, 'INVALID_DEPARTMENT');
+      }
+      if (!year || year < 1 || year > 4) {
+        return errorResponse(res, 400, 'Year must be between 1 and 4', 'INVALID_YEAR');
+      }
+    }
+
+    // Check duplicates
+    const existingUser = await User.findByUserId(userId);
+    if (existingUser) {
+      return errorResponse(res, 409, 'User ID already exists', 'DUPLICATE_USER_ID');
+    }
+
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return errorResponse(res, 409, 'Email already registered', 'DUPLICATE_EMAIL');
+    }
+
+    // Create user
+    const userData = {
+      userId: userId.toUpperCase(),
+      name: name.trim(),
       email: email.toLowerCase(),
-      department,
-      year: Number(year),
       password,
+      role,
+      isVerified: role === 'admin',
+    };
+
+    if (role === 'student') {
+      userData.department = department.toUpperCase();
+      userData.year = parseInt(year, 10);
+    }
+
+    const user = await User.create(userData);
+
+    const token = generateToken({
+      id: user._id,
+      userId: user.userId,
+      role: user.role,
     });
 
-    // Send token response
-    sendTokenResponse(student, 201, res);
+    return successResponse(res, 201, 'Registration successful', { token, user: user.toJSON() });
   } catch (error) {
-    console.error('Register Error:', error);
-
-    // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: messages,
-      });
-    }
-
-    // Handle duplicate key error
+    console.error('Registration Error:', error);
     if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0];
-      return res.status(409).json({
-        success: false,
-        message: `${field} already exists`,
-        field,
-      });
+      return errorResponse(res, 409, 'User already exists', 'DUPLICATE_USER');
     }
-
-    res.status(500).json({
-      success: false,
-      message: 'Server error during registration',
-    });
+    return errorResponse(res, 500, 'Registration failed', 'SERVER_ERROR');
   }
 };
 
 /**
- * @route   POST /api/auth/login
- * @desc    Login student with email/studentId and password
- * @access  Public
+ * POST /api/auth/login
  */
 exports.login = async (req, res) => {
   try {
-    const { email, studentId, password } = req.body;
+    const { email, userId, password } = req.body;
 
-    // Check for identifier (email or studentId)
-    const identifier = email || studentId;
-    if (!identifier) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide email or studentId',
-      });
+    // Accept either email or userId for login
+    if ((!email && !userId) || !password) {
+      return errorResponse(res, 400, 'Please provide email (or userId) and password', 'MISSING_CREDENTIALS');
     }
 
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide password',
-      });
+    // Find user by email or userId
+    let user;
+    if (email) {
+      user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    } else {
+      user = await User.findByUserIdWithPassword(userId);
+    }
+    
+    if (!user) {
+      return errorResponse(res, 401, 'Invalid credentials', 'INVALID_CREDENTIALS');
     }
 
-    // Find student by credentials
-    const student = await Student.findByCredentials(identifier);
-
-    if (!student) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
+    const isValid = await user.comparePassword(password);
+    if (!isValid) {
+      return errorResponse(res, 401, 'Invalid credentials', 'INVALID_CREDENTIALS');
     }
 
-    // Check password
-    const isMatch = await student.comparePassword(password);
+    const token = generateToken({
+      id: user._id,
+      userId: user.userId,
+      role: user.role,
+    });
 
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
-    }
-
-    // Update last login
-    student.lastLogin = new Date();
-    await student.save({ validateBeforeSave: false });
-
-    // Send token response
-    sendTokenResponse(student, 200, res);
+    return successResponse(res, 200, 'Login successful', { token, user: user.toJSON() });
   } catch (error) {
     console.error('Login Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error during login',
-    });
+    return errorResponse(res, 500, 'Login failed', 'SERVER_ERROR');
   }
 };
 
 /**
- * @route   GET /api/auth/me
- * @desc    Get current logged in student
- * @access  Private
+ * GET /api/auth/me
  */
-exports.getMe = async (req, res) => {
+exports.getProfile = async (req, res) => {
   try {
-    const student = await Student.findById(req.student.id);
-
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: 'Student not found',
-      });
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return errorResponse(res, 404, 'User not found', 'USER_NOT_FOUND');
     }
-
-    res.status(200).json({
-      success: true,
-      student: student.getPublicProfile(),
-    });
+    return successResponse(res, 200, 'Profile retrieved', { user: user.toJSON() });
   } catch (error) {
-    console.error('GetMe Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-    });
+    console.error('Get Profile Error:', error);
+    return errorResponse(res, 500, 'Failed to retrieve profile', 'SERVER_ERROR');
   }
 };
 
 /**
- * @route   POST /api/auth/logout
- * @desc    Logout student (clear cookie)
- * @access  Private
- */
-exports.logout = async (req, res) => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000), // 10 seconds
-    httpOnly: true,
-  });
-
-  res.status(200).json({
-    success: true,
-    message: 'Logged out successfully',
-  });
-};
-
-/**
- * @route   PUT /api/auth/password
- * @desc    Update password
- * @access  Private
+ * PUT /api/auth/password
  */
 exports.updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide current and new password',
-      });
+      return errorResponse(res, 400, 'Please provide current and new password', 'MISSING_PASSWORDS');
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'New password must be at least 6 characters',
-      });
+      return errorResponse(res, 400, 'New password must be at least 6 characters', 'WEAK_PASSWORD');
     }
 
-    // Get student with password
-    const student = await Student.findById(req.student.id).select('+password');
-
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: 'Student not found',
-      });
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return errorResponse(res, 404, 'User not found', 'USER_NOT_FOUND');
     }
 
-    // Check current password
-    const isMatch = await student.comparePassword(currentPassword);
-
+    const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Current password is incorrect',
-      });
+      return errorResponse(res, 401, 'Current password is incorrect', 'INVALID_PASSWORD');
     }
 
-    // Update password
-    student.password = newPassword;
-    await student.save();
+    user.password = newPassword;
+    await user.save();
 
-    sendTokenResponse(student, 200, res);
+    return successResponse(res, 200, 'Password updated successfully');
   } catch (error) {
     console.error('Update Password Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
+    return errorResponse(res, 500, 'Failed to update password', 'SERVER_ERROR');
+  }
+};
+
+/**
+ * GET /api/auth/admin/stats
+ */
+exports.getVotingStats = async (req, res) => {
+  try {
+    const totalStudents = await User.countDocuments({ role: 'student' });
+    const votedCount = await User.countDocuments({ role: 'student', hasVoted: true });
+    const notVotedCount = totalStudents - votedCount;
+    const votingPercentage = totalStudents > 0 ? Math.round((votedCount / totalStudents) * 100) : 0;
+
+    return successResponse(res, 200, 'Statistics retrieved', {
+      stats: { totalStudents, votedCount, notVotedCount, votingPercentage },
     });
+  } catch (error) {
+    console.error('Get Stats Error:', error);
+    return errorResponse(res, 500, 'Failed to retrieve statistics', 'SERVER_ERROR');
+  }
+};
+
+/**
+ * GET /api/auth/admin/users
+ */
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { role } = req.query;
+    const query = role ? { role } : {};
+    const users = await User.find(query);
+
+    return successResponse(res, 200, 'Users retrieved', {
+      count: users.length,
+      users: users.map((u) => u.toJSON()),
+    });
+  } catch (error) {
+    console.error('Get Users Error:', error);
+    return errorResponse(res, 500, 'Failed to retrieve users', 'SERVER_ERROR');
   }
 };

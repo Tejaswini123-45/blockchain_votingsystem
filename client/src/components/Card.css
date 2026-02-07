@@ -1,38 +1,42 @@
 /* =========================================
-   REUSABLE CARD COMPONENT
+   REUSABLE CARD COMPONENT v2.0
    ========================================= */
 
 .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    transition: all 0.3s ease;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Variants */
 .card-default {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(15, 23, 42, 0.6);
 }
 
 .card-glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
 .card-gradient {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border-color: rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.08));
+    border-color: rgba(99, 102, 241, 0.2);
 }
 
 .card-solid {
-    background: #111118;
+    background: #0f172a;
 }
 
 /* Hover Effect */
 .card-hover:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-3px);
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(99, 102, 241, 0.25);
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.1);
 }
 
 /* Clickable */
@@ -42,15 +46,15 @@
 
 /* Padding Sizes */
 .card-padding-small {
-    padding: 1rem;
+    padding: 1.15rem;
 }
 
 .card-padding-medium {
-    padding: 1.5rem;
+    padding: 1.75rem;
 }
 
 .card-padding-large {
-    padding: 2rem;
+    padding: 2.25rem;
 }
 
 .card-padding-none {
@@ -59,9 +63,9 @@
 
 /* Sub-components */
 .card-header {
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 }
 
 .card-body {
@@ -69,7 +73,7 @@
 }
 
 .card-footer {
-    padding-top: 1rem;
-    margin-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
 }

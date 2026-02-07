@@ -105,7 +105,7 @@ const Dashboard = () => {
                     <div className="profile-details">
                         <div className="detail-row">
                             <span className="detail-label">Student ID</span>
-                            <span className="detail-value">{user?.studentId || 'N/A'}</span>
+                            <span className="detail-value">{user?.userId || 'N/A'}</span>
                         </div>
                         <div className="detail-row">
                             <span className="detail-label">Department</span>
@@ -113,11 +113,19 @@ const Dashboard = () => {
                         </div>
                         <div className="detail-row">
                             <span className="detail-label">Year</span>
-                            <span className="detail-value">{user?.year || 'N/A'}</span>
+                            <span className="detail-value">{user?.year ? `Year ${user.year}` : 'N/A'}</span>
                         </div>
                         <div className="detail-row">
                             <span className="detail-label">Email</span>
-                            <span className="detail-value">{user?.email}</span>
+                            <span className="detail-value">{user?.email || 'N/A'}</span>
+                        </div>
+                        <div className="detail-row">
+                            <span className="detail-label">KYC Status</span>
+                            <span className={`detail-value kyc-${user?.kycStatus || 'not_submitted'}`}>
+                                {user?.kycStatus === 'approved' ? '✓ Verified' : 
+                                 user?.kycStatus === 'pending' ? '⏳ Pending' :
+                                 user?.kycStatus === 'rejected' ? '✗ Rejected' : 'Not Submitted'}
+                            </span>
                         </div>
                     </div>
                 </div>

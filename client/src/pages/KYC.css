@@ -1,0 +1,401 @@
+.kyc-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kyc-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+}
+
+.kyc-card.success-card,
+.kyc-card.pending-card {
+    text-align: center;
+    padding: 3rem;
+}
+
+.kyc-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.kyc-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.kyc-header h1 {
+    color: #fff;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.kyc-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Status Icons */
+.status-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.status-icon.approved {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.status-icon.pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.status-icon.rejected {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+/* KYC Steps */
+.kyc-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.step-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.step-arrow {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1.2rem;
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+}
+
+.upload-area:hover,
+.upload-area.drag-active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.upload-area.has-file {
+    border-style: solid;
+    border-color: rgba(76, 175, 80, 0.5);
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.upload-label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-label p {
+    color: #fff;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.upload-label span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.file-hint {
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-size: 0.8rem !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Preview */
+.preview-container {
+    position: relative;
+}
+
+.id-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.file-info {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+}
+
+.remove-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    border-radius: 20px;
+    color: #f44336;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+    background: rgba(244, 67, 54, 0.3);
+}
+
+/* Guidelines */
+.guidelines {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.guidelines h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.guidelines ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guidelines li {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.guidelines li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #667eea;
+}
+
+/* Messages */
+.error-message {
+    padding: 1rem;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 10px;
+    color: #f44336;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.success-message {
+    padding: 1rem;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+    color: #4caf50;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+/* Buttons */
+.submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.primary-btn {
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+}
+
+.loading-state .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #667eea;
+}
+
+.loading-state p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Spinner */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success/Pending Card */
+.success-card h2,
+.pending-card h2 {
+    color: #fff;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.success-card p,
+.pending-card p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.sub-text {
+    font-size: 0.9rem !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .kyc-container {
+        padding: 1rem;
+    }
+
+    .kyc-card {
+        padding: 1.5rem;
+    }
+
+    .kyc-steps {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .step-arrow {
+        transform: rotate(90deg);
+    }
+
+    .kyc-header h1 {
+        font-size: 1.5rem;
+    }
+}

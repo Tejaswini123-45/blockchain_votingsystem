@@ -57,15 +57,24 @@ const Navbar = () => {
                                     className={`nav-link ${isActive('/vote') ? 'active' : ''}`}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    Vote
+                                    ⛓️ Vote
                                 </Link>
                                 <Link 
                                     to="/results" 
                                     className={`nav-link ${isActive('/results') ? 'active' : ''}`}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    Results
+                                    📊 Results
                                 </Link>
+                                {user.role === 'admin' && (
+                                    <Link 
+                                        to="/admin" 
+                                        className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        🛡️ Admin
+                                    </Link>
+                                )}
                             </>
                         )}
                     </div>

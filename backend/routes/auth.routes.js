@@ -1,55 +1,93 @@
 /**
- * Auth Routes
- * @description Authentication routes for student registration and login
- * @author Senior MERN Developer
+ * Authentication Routes
+ * @description Clean auth routes with role-based access
  */
 
 const express = require('express');
 const router = express.Router();
 
-// Import controller
-const {
-  register,
-  login,
-  getMe,
-  logout,
-  updatePassword,
-} = require('../controllers/auth.controller');
+// Controllers
+const authController = require('../controllers/auth.controller');
+const otpController = require('../controllers/otp.controller');
 
-// Import middleware
-const { protect } = require('../middleware/auth.middleware');
+// Middlewares
+const { verifyToken, optionalAuth } = require('../middlewares/auth.middleware');
+const { allowAdmin } = require('../middlewares/role.middleware');
 
-/**
- * Public Routes
- */
+// =============================================================================
+// OTP ROUTES
+// =============================================================================
 
-// @route   POST /api/auth/register
-// @desc    Register a new student
-// @access  Public
-router.post('/register', register);
+// Send OTP for registration
+router.post('/otp/send', otpController.sendRegistrationOTP);
 
-// @route   POST /api/auth/login
-// @desc    Login student
-// @access  Public
-router.post('/login', login);
+// Verify OTP
+router.post('/otp/verify', otpController.verifyRegistrationOTP);
 
-/**
- * Protected Routes (require authentication)
- */
+// Resend OTP
+router.post('/otp/resend', otpController.resendOTP);
 
-// @route   GET /api/auth/me
-// @desc    Get current logged in student
-// @access  Private
-router.get('/me', protect, getMe);
+// =============================================================================
+// PUBLIC ROUTES
+// =============================================================================
 
-// @route   POST /api/auth/logout
-// @desc    Logout student
-// @access  Private
-router.post('/logout', protect, logout);
+// Register new student
+router.post('/register', authController.register);
 
-// @route   PUT /api/auth/password
-// @desc    Update password
-// @access  Private
-router.put('/password', protect, updatePassword);
+// Login
+router.post('/login', authController.login);
+
+// =============================================================================
+// PROTECTED ROUTES
+// =============================================================================
+
+// Get profile
+router.get('/profile', verifyToken, authController.getProfile);
+router.get('/me', verifyToken, authController.getProfile);
+
+// Update password
+router.put('/password', verifyToken, authController.updatePassword);
+
+// Logout
+router.post('/logout', verifyToken, (req, res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    expires: new Date(0),
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+});
+
+// =============================================================================
+// ADMIN ROUTES
+// =============================================================================
+
+// Register new admin (admin only)
+router.post('/admin/register', verifyToken, allowAdmin, authController.register);
+
+// Get all users (admin only)
+router.get('/admin/users', verifyToken, allowAdmin, authController.getAllUsers);
+
+// Get voting stats (admin only)
+router.get('/admin/stats', verifyToken, allowAdmin, authController.getVotingStats);
+
+// =============================================================================
+// VALIDATION
+// =============================================================================
+
+// Validate token
+router.get('/validate', verifyToken, (req, res) => {
+  res.status(200).json({ success: true, valid: true, user: req.user });
+});
+
+// Check auth status (optional)
+router.get('/check', optionalAuth, (req, res) => {
+  res.status(200).json({
+    success: true,
+    authenticated: !!req.user,
+    user: req.user || null,
+  });
+});
 
 module.exports = router;

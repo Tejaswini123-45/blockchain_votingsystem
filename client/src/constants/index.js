@@ -1,23 +1,22 @@
 // Application Constants
 
 export const DEPARTMENTS = [
-    'Computer Science',
-    'Information Technology',
-    'Electronics & Communication',
-    'Electrical Engineering',
-    'Mechanical Engineering',
-    'Civil Engineering',
-    'Chemical Engineering',
-    'Biotechnology',
-    'MBA',
-    'Other'
+    'CSE',
+    'IT',
+    'ECE',
+    'EEE',
+    'MECH',
+    'CIVIL',
+    'AIDS',
+    'AIML',
+    'CSM'
 ];
 
 export const YEARS = [
-    '1st Year',
-    '2nd Year',
-    '3rd Year',
-    '4th Year'
+    '1',
+    '2',
+    '3',
+    '4'
 ];
 
 export const POSITIONS = [
